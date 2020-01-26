@@ -16,6 +16,7 @@ class Game:
         self.second_player_step = 'Second player turn, your figures are denoted as '
         self.victory_first = 'First player wins!'
         self.victory_second = 'Second player wins!'
+        self.no_winner = 'Dead heat.'
 
     def settings(self):
         language = input('Введите 1 для русского языка/ Type anything except 1 for English ')
@@ -29,9 +30,10 @@ class Game:
             self.error = 'Ошибка. '
             self.full = 'Эта колонка уже полностью заполнена, надо выбрать другую:'
             self.first_player_step = 'Ход первого игрока, фигуры обозначены как '
-            self.first_player_step = 'Ход второго игрока, фигуры обозначены как '
+            self.second_player_step = 'Ход второго игрока, фигуры обозначены как '
             self.victory_first = 'Победа первого игрока!'
             self.victory_second = 'Победа второго игрока!'
+            self.no_winner = 'Ничья.'
 
     def desk_init(self):
         row = ''
@@ -46,10 +48,8 @@ class Game:
 
     def step(self, player: str):
         position = input(self.command)
-
         while position not in [str(i) for i in range(1, self.length + 1)]:
             position = input(self.error + self.command)
-
         while self.matrix[0][int(position) - 1] != int(position):
             position = input(self.full)
         position = int(position)
@@ -78,6 +78,28 @@ class Game:
         diagonal_list_alternative = self.diagonals(matrix_mirrowed)
         if self.inline(player, diagonal_list_alternative) == 'game over':
             return 'game over'
+
+    def dead_heat(self, player):
+        # stop the game before all the positions are filled
+        referee = 0
+        filled_matrix = [[] for i in range(self.hight)]
+        for h in range(self.hight):
+            filled_matrix[h] = [player if str(element).isdigit()
+                                else element for element in self.matrix[h]]
+        if self.inline(player, filled_matrix) != 'game over':
+            referee += 1
+        new_matrix = self.transpose(filled_matrix)
+        if self.inline(player, new_matrix) != 'game over':
+            referee += 1
+        diagonal_list = self.diagonals(filled_matrix)
+        if self.inline(player, diagonal_list) != 'game over':
+            referee += 1
+        matrix_mirrowed = self.mirrow(filled_matrix)
+        diagonal_list_alternative = self.diagonals(matrix_mirrowed)
+        if self.inline(player, diagonal_list_alternative) != 'game over':
+            referee += 1
+        if referee == 4:
+            return 'dead heat'
 
     def transpose(self, matrix):
         length = len(matrix[0])
@@ -109,7 +131,7 @@ class Game:
             row = row.split(' ')
             row = [r for r in row if r != '']
             for item in row:
-                if len(item) == 4:
+                if len(item) >= 4:
                     return 'game over'
 
     def diagonals(self, matrix):
@@ -135,6 +157,9 @@ class Game:
                 if self.game_over(player1) == 'game over':
                     print(self.victory_first)
                     return self.victory_first
+                if self.dead_heat(player1) == 'dead heat':
+                    print(self.no_winner)
+                    return self.no_winner
             else:
                 print(self.second_player_step, player2)
                 self.step(player2)
@@ -142,6 +167,9 @@ class Game:
                 if self.game_over(player2) == 'game over':
                     print(self.victory_second)
                     return self.victory_second
+                if self.dead_heat(player2) == 'dead heat':
+                    print(self.no_winner)
+                    return self.no_winner
 
 
 game = Game()
