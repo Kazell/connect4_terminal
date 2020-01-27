@@ -158,8 +158,9 @@ class Game:
                     print(self.victory_first)
                     return self.victory_first
                 if self.dead_heat(player1) == 'dead heat':
-                    print(self.no_winner)
-                    return self.no_winner
+                    if self.dead_heat(player2) == 'dead heat':
+                        print(self.no_winner)
+                        return self.no_winner
             else:
                 print(self.second_player_step, player2)
                 self.step(player2)
@@ -168,8 +169,9 @@ class Game:
                     print(self.victory_second)
                     return self.victory_second
                 if self.dead_heat(player2) == 'dead heat':
-                    print(self.no_winner)
-                    return self.no_winner
+                    if self.dead_heat(player1) == 'dead heat':
+                        print(self.no_winner)
+                        return self.no_winner
 
 
 game = Game()
